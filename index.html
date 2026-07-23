@@ -1,59 +1,69 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>CST Dealer Locator</title>
+    <title>CST Dealer Locator</title>
 
-<link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css">
 
 </head>
 
 <body>
 
-<div class="card">
+    <div class="container">
 
-<img src="https://www.csttires.com/storage/logo.png" class="logo">
+        <div class="card">
 
-<h1>CST Dealer Locator</h1>
+            <img src="Logo.jpeg" alt="CST Tires Logo" class="logo">
 
-<p>ค้นหาตัวแทนจำหน่ายใกล้คุณ</p>
+            <h1>CST Dealer Locator</h1>
 
-<select id="province">
-<option>เลือกจังหวัด</option>
-</select>
+            <p class="subtitle">
+                ค้นหาตัวแทนจำหน่ายใกล้คุณ
+            </p>
 
-<select id="district">
-<option>เลือกเขต / อำเภอ</option>
-</select>
+            <select id="province">
+                <option value="">เลือกจังหวัด</option>
+            </select>
 
-<button id="searchBtn">
-ค้นหา
-</button>
+            <select id="district">
+                <option value="">เลือกเขต / อำเภอ</option>
+            </select>
 
-<div id="result"></div>
+            <button id="searchBtn">
+                ค้นหา
+            </button>
 
-<div class="footer">
+            <div id="result"></div>
 
-หากไม่พบร้านตัวแทนจำหน่ายหรือพื้นที่ใกล้เคียงที่ต้องการ
-<br>
-สามารถตรวจสอบเพิ่มเติมได้ผ่านแผนที่ตัวแทนจำหน่ายทั้งหมดด้านล่าง
+            <div class="footer">
 
-<br><br>
+                หากไม่พบตัวแทนจำหน่ายในพื้นที่ที่ต้องการ
 
-<a href="https://maps.app.goo.gl/jHFiXhXmnL3ZGm6N7" target="_blank">
+                <br>
 
-ดูแผนที่ตัวแทนจำหน่ายทั้งหมด
+                สามารถดูตัวแทนจำหน่ายทั้งหมดได้ที่
 
-</a>
+                <br><br>
 
-</div>
+                <a href="https://maps.app.goo.gl/jHFiXhXmnL3ZGm6N7" target="_blank">
+                    ดูแผนที่ตัวแทนจำหน่ายทั้งหมด
+                </a>
 
-</div>
+            </div>
 
-<script src="script.js"></script>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+    <script src="script.js"></script>
 
 </body>
+
 </html>
