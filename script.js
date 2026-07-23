@@ -1,131 +1,132 @@
-const csvURL="https://docs.google.com/spreadsheets/d/e/2PACX-1vT4-ZYfNA55ZyglkodD4P-phpjaUPfcLeg-vWe9h-olz3ZNB328JlBvOjyAzl1bCOYL2zNlZiduIg1S/pub?gid=228209258&single=true&output=csv";
+const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT4-ZYfNA55ZyglkodD4P-phpjaUPfcLeg-vWe9h-olz3ZNB328JlBvOjyAzl1bCOYL2zNlZiduIg1S/pub?gid=228209258&single=true&output=csv";
 
-let dealers=[];
+let dealers = [];
 
-fetch(csvURL)
-.then(r=>r.text())
-.then(csv=>{
+const provinceSelect = document.getElementById("province");
+const districtSelect = document.getElementById("district");
+const result = document.getElementById("result");
 
-const rows=csv.trim().split("\n").map(r=>r.split(","));
+Papa.parse(csvURL, {
+    download: true,
+    header: true,
+    skipEmptyLines: true,
 
-rows.shift();
+    complete: function (results) {
 
-dealers=rows.map(r=>({
+        dealers = results.data;
 
-name:r[0]?.replace(/"/g,""),
+        loadProvince();
 
-phone:r[1]?.replace(/"/g,""),
-
-province:r[2]?.replace(/"/g,""),
-
-district:r[3]?.replace(/"/g,""),
-
-map:r[4]?.replace(/"/g,""),
-
-facebook:r[5]?.replace(/"/g,"")
-
-}));
-
-loadProvince();
+    }
 
 });
 
-function loadProvince(){
+function loadProvince() {
 
-const province=document.getElementById("province");
+    const provinces = [...new Set(
 
-const list=[...new Set(dealers.map(d=>d.province))].sort();
+        dealers.map(d => d["จังหวัด"]).filter(Boolean)
 
-list.forEach(p=>{
+    )].sort();
 
-province.innerHTML+=`<option value="${p}">${p}</option>`;
+    provinces.forEach(p => {
 
-});
+        const option = document.createElement("option");
+
+        option.value = p;
+
+        option.textContent = p;
+
+        provinceSelect.appendChild(option);
+
+    });
 
 }
 
-document.getElementById("province").addEventListener("change",()=>{
+provinceSelect.addEventListener("change", () => {
 
-const province=document.getElementById("province").value;
+    districtSelect.innerHTML = '<option value="">เลือกเขต / อำเภอ</option>';
 
-const district=document.getElementById("district");
+    const province = provinceSelect.value;
 
-district.innerHTML='<option>เลือกเขต / อำเภอ</option>';
+    const districts = [...new Set(
 
-const list=[...new Set(
+        dealers
+        .filter(d => d["จังหวัด"] === province)
+        .map(d => d["เขต"])
+        .filter(Boolean)
 
-dealers.filter(d=>d.province==province)
+    )].sort();
 
-.map(d=>d.district)
+    districts.forEach(d => {
 
-)].sort();
+        const option = document.createElement("option");
 
-list.forEach(d=>{
+        option.value = d;
 
-district.innerHTML+=`<option value="${d}">${d}</option>`;
+        option.textContent = d;
 
-});
+        districtSelect.appendChild(option);
 
-});
-
-document.getElementById("searchBtn").onclick=()=>{
-
-const province=document.getElementById("province").value;
-
-const district=document.getElementById("district").value;
-
-const result=document.getElementById("result");
-
-result.innerHTML="";
-
-const data=dealers.filter(d=>
-
-d.province==province &&
-
-d.district==district
-
-);
-
-if(data.length==0){
-
-result.innerHTML="<p>ไม่พบร้านตัวแทนจำหน่าย</p>";
-
-return;
-
-}
-
-data.forEach(d=>{
-
-result.innerHTML+=`
-
-<div class="result-card">
-
-<h3>${d.name}</h3>
-
-<p>📞 ${d.phone}</p>
-
-<p>
-
-<a href="${d.map}" target="_blank">
-
-Google Maps
-
-</a>
-
-&nbsp;&nbsp;
-
-<a href="${d.facebook}" target="_blank">
-
-Facebook
-
-</a>
-
-</p>
-
-</div>
-
-`;
+    });
 
 });
 
-};
+document.getElementById("searchBtn").addEventListener("click", () => {
+
+    result.innerHTML = "";
+
+    const province = provinceSelect.value;
+
+    const district = districtSelect.value;
+
+    const filtered = dealers.filter(d =>
+
+        d["จังหวัด"] === province &&
+        d["เขต"] === district
+
+    );
+
+    if (filtered.length === 0) {
+
+        result.innerHTML = `
+            <div class="result-card">
+                <p>ไม่พบตัวแทนจำหน่ายในพื้นที่นี้</p>
+            </div>
+        `;
+
+        return;
+
+    }
+
+    filtered.forEach(d => {
+
+        result.innerHTML += `
+
+        <div class="result-card">
+
+            <h3>${d["ชื่อร้าน"] || ""}</h3>
+
+            <p>📞 ${d["เบอร์โทร"] || "-"}</p>
+
+            <p>
+
+                <a href="${d["Map"]}" target="_blank">
+                📍 Google Maps
+                </a>
+
+                &nbsp;&nbsp;
+
+                <a href="${d["Social Media"]}" target="_blank">
+                🌐 Facebook
+                </a>
+
+            </p>
+
+        </div>
+
+        `;
+
+    });
+
+});
