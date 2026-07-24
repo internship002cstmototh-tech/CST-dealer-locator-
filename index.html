@@ -6,67 +6,55 @@
     <title>CST Dealer Locator</title>
 
     <link rel="stylesheet" href="style.css">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
 
 <div class="container">
 
-    <div class="card">
+    <img src="Logo.jpeg" alt="CST Logo" class="logo">
 
-        <img src="Logo.jpeg" alt="CST Tires" class="logo">
+    <h1>CST Dealer Locator</h1>
 
-        <h1>CST Dealer Locator</h1>
+    <p class="subtitle">
+        ค้นหาตัวแทนจำหน่ายยาง CST ใกล้คุณ
+    </p>
 
-        <p class="subtitle">
-            ค้นหาตัวแทนจำหน่ายใกล้คุณ
-        </p>
+    <div class="search-box">
 
-        <div class="search-box">
+        <select id="province">
+            <option value="">-- เลือกจังหวัด --</option>
+        </select>
 
-            <select id="province">
-                <option value="">เลือกจังหวัด</option>
-            </select>
+        <select id="district" disabled>
+            <option value="">-- เลือกเขต / อำเภอ --</option>
+        </select>
 
-            <select id="district">
-                <option value="">เลือกเขต / อำเภอ</option>
-            </select>
-
+        <div class="button-group">
             <button id="searchBtn">
                 ค้นหาร้านค้า
             </button>
 
-        </div>
-
-        <div id="loading" class="loading">
-            กำลังโหลดข้อมูล...
-        </div>
-
-        <div id="resultCount"></div>
-
-        <div id="result"></div>
-
-        <div class="footer">
-
-            หากไม่พบตัวแทนจำหน่ายในพื้นที่ที่ต้องการ
-
-            <br><br>
-
-            <a href="https://maps.app.goo.gl/jHFiXhXmnL3ZGm6N7" target="_blank">
-                ดูแผนที่ตัวแทนจำหน่ายทั้งหมด
-            </a>
-
+            <button id="resetBtn" class="secondary-btn">
+                ล้างการค้นหา
+            </button>
         </div>
 
     </div>
 
+    <div id="loading" class="loading">
+        กำลังโหลดข้อมูล...
+    </div>
+
+    <div id="resultCount" class="result-count"></div>
+
+    <div id="results" class="results"></div>
+
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<footer>
+    © 2026 CST Dealer Locator
+</footer>
 
 <script src="script.js"></script>
 
