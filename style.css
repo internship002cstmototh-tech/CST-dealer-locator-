@@ -207,17 +207,12 @@ footer{
     text-align:center;
 
 }
-
 .all-map p{
-
-    color:#666;
-
-    margin-bottom:15px;
-
-    font-size:18px;
-
+    font-size:13px;
+    color:#777;
+    line-height:1.5;
+    margin-bottom:16px;
 }
-
 .all-map-btn{
 
     display:inline-block;
