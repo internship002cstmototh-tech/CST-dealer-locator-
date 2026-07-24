@@ -22,7 +22,7 @@ body{
 
 .logo{
     display:block;
-    margin:0 auto 20px;
+    margin:0 auto 18px;
     width:180px;
     max-width:100%;
 }
@@ -36,7 +36,7 @@ h1{
 .subtitle{
     text-align:center;
     color:#666;
-    margin-bottom:30px;
+    margin-bottom:25px;
 }
 
 .search-box{
@@ -104,7 +104,7 @@ button{
 
 .results{
     display:grid;
-    gap:18px;
+    gap:17px;
 }
 
 .card{
@@ -137,7 +137,7 @@ button{
 .action-buttons{
     display:flex;
     gap:10px;
-    margin-top:18px;
+    margin-top:17x;
     flex-wrap:wrap;
 }
 
