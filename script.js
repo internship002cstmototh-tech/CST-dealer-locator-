@@ -1,189 +1,202 @@
-const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT4-ZYfNA55ZyglkodD4P-phpjaUPfcLeg-vWe9h-olz3ZNB328JlBvOjyAzl1bCOYL2zNlZiduIg1S/pub?gid=228209258&single=true&output=csv";
+// ==============================
+// CST Dealer Locator v3.0
+// ==============================
 
-let dealers = [];
+const csvURL =
+"https://docs.google.com/spreadsheets/d/e/2PACX-1vT4-ZYfNA55ZyglkodD4P-phpjaUPfcLeg-vWe9h-olz3ZNB328JlBvOjyAzl1bCOYL2zNlZiduIg1S/pub?gid=228209258&single=true&output=csv";
+
+let dealerData = [];
 
 const provinceSelect = document.getElementById("province");
 const districtSelect = document.getElementById("district");
 const searchBtn = document.getElementById("searchBtn");
-const result = document.getElementById("result");
-const resultCount = document.getElementById("resultCount");
+const resetBtn = document.getElementById("resetBtn");
+
 const loading = document.getElementById("loading");
+const resultCount = document.getElementById("resultCount");
+const results = document.getElementById("results");
 
-loading.style.display = "block";
 
-Papa.parse(csvURL, {
-    download: true,
-    header: true,
-    skipEmptyLines: true,
+// ==============================
+// โหลดข้อมูล CSV
+// ==============================
 
-    complete: function (results) {
+async function loadDealerData() {
 
-        loading.style.display = "none";
+    loading.style.display = "block";
 
-        dealers = results.data;
+    try {
 
-        loadProvince();
+        const response = await fetch(csvURL);
 
-    },
+        const csv = await response.text();
 
-    error: function () {
+        dealerData = parseCSV(csv);
 
-        loading.style.display = "none";
+        createProvinceList();
 
-        result.innerHTML = `
-            <div class="result-card">
-                <h3>เกิดข้อผิดพลาด</h3>
-                <p>ไม่สามารถโหลดข้อมูลร้านค้าได้</p>
-            </div>
-        `;
+    } catch (err) {
+
+        console.error(err);
+
+        results.innerHTML =
+        "<div class='no-result'>ไม่สามารถโหลดข้อมูลได้</div>";
 
     }
 
-});
+    loading.style.display = "none";
 
-function loadProvince() {
+}
 
-    const provinces = [...new Set(
 
-        dealers
-            .map(item => item["จังหวัด"]?.trim())
-            .filter(Boolean)
 
-    )].sort();
+// ==============================
+// แปลง CSV
+// ==============================
 
-    provinceSelect.innerHTML =
-        '<option value="">เลือกจังหวัด</option>';
+function parseCSV(csv) {
 
-    provinces.forEach(province => {
+    const rows = csv.trim().split(/\r?\n/);
 
-        provinceSelect.innerHTML += `
-            <option value="${province}">
-                ${province}
-            </option>
-        `;
+    const headers = rows.shift().split(",");
+
+    return rows.map(row => {
+
+        const values = row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
+
+        let obj = {};
+
+        headers.forEach((header, index) => {
+
+            obj[header.trim()] =
+            values[index]
+            ? values[index].replace(/^"|"$/g, "").trim()
+            : "";
+
+        });
+
+        return obj;
 
     });
 
 }
 
-provinceSelect.addEventListener("change", function () {
 
-    const province = this.value;
+
+// ==============================
+// จังหวัด
+// ==============================
+
+function createProvinceList() {
+
+    const provinces =
+    [...new Set(
+        dealerData.map(item => item["จังหวัด"])
+    )].sort();
+
+    provinceSelect.innerHTML =
+    '<option value="">-- เลือกจังหวัด --</option>';
+
+    provinces.forEach(province => {
+
+        const option = document.createElement("option");
+
+        option.value = province;
+
+        option.textContent = province;
+
+        provinceSelect.appendChild(option);
+
+    });
+
+}// ==============================
+// เปลี่ยนจังหวัด → โหลดอำเภอ
+// ==============================
+
+provinceSelect.addEventListener("change", () => {
+
+    const province = provinceSelect.value;
 
     districtSelect.innerHTML =
-        '<option value="">เลือกเขต / อำเภอ</option>';
+        '<option value="">-- เลือกเขต / อำเภอ --</option>';
 
-    if (!province) return;
+    if (!province) {
+        districtSelect.disabled = true;
+        return;
+    }
 
     const districts = [...new Set(
 
-        dealers
+        dealerData
             .filter(item => item["จังหวัด"] === province)
-            .map(item => item["เขต/อำเภอ"]?.trim())
+            .map(item => item["เขต/อำเภอ"])
             .filter(Boolean)
 
     )].sort();
 
     districts.forEach(district => {
 
-        districtSelect.innerHTML += `
-            <option value="${district}">
-                ${district}
-            </option>
-        `;
+        const option = document.createElement("option");
+
+        option.value = district;
+
+        option.textContent = district;
+
+        districtSelect.appendChild(option);
 
     });
+
+    districtSelect.disabled = false;
 
 });
 
-searchBtn.addEventListener("click", function () {
 
-    const province = provinceSelect.value;
-    const district = districtSelect.value;
 
-    result.innerHTML = "";
-    resultCount.innerHTML = "";
+// ==============================
+// ค้นหาร้านค้า
+// ==============================
 
-    if (!province) {
+searchBtn.addEventListener("click", () => {
 
-        alert("กรุณาเลือกจังหวัด");
+    let filtered = dealerData;
 
-        return;
+    if (provinceSelect.value) {
 
-    }
-
-    let filtered = dealers.filter(item => {
-
-        if (district === "") {
-
-            return item["จังหวัด"] === province;
-
-        }
-
-        return item["จังหวัด"] === province &&
-               item["เขต/อำเภอ"] === district;
-
-    });
-
-    resultCount.innerHTML =
-        `พบทั้งหมด ${filtered.length} ร้าน`;
-
-    if (filtered.length === 0) {
-
-        result.innerHTML = `
-            <div class="result-card">
-
-                <h3>ไม่พบร้านค้า</h3>
-
-                <p>
-                    ไม่พบตัวแทนจำหน่ายในพื้นที่ที่เลือก
-                </p>
-
-            </div>
-        `;
-
-        return;
+        filtered = filtered.filter(item =>
+            item["จังหวัด"] === provinceSelect.value
+        );
 
     }
 
-    filtered.forEach(shop => {
+    if (districtSelect.value) {
 
-        result.innerHTML += `
+        filtered = filtered.filter(item =>
+            item["เขต/อำเภอ"] === districtSelect.value
+        );
 
-        <div class="result-card">
+    }
 
-            <h3>${shop["ชื่อร้าน"] || "-"}</h3>
+    displayResults(filtered);
 
-            <p>📞 ${shop["เบอร์โทร"] || "-"}</p>
+});
 
-            <p>📍 ${shop["จังหวัด"]} ${shop["เขต/อำเภอ"]}</p>
 
-            <div class="button-group">
 
-                <a
-                    class="map-btn"
-                    href="${shop["Map"]}"
-                    target="_blank">
+// ==============================
+// Reset
+// ==============================
 
-                    Google Maps
+resetBtn.addEventListener("click", () => {
 
-                </a>
+    provinceSelect.value = "";
 
-                <a
-                    class="fb-btn"
-                    href="${shop["Social Media"]}"
-                    target="_blank">
+    districtSelect.innerHTML =
+        '<option value="">-- เลือกเขต / อำเภอ --</option>';
 
-                    Facebook
+    districtSelect.disabled = true;
 
-                </a>
+    resultCount.textContent = "";
 
-            </div>
-
-        </div>
-
-        `;
-
-    });
+    results.innerHTML = "";
 
 });
