@@ -199,4 +199,90 @@ resetBtn.addEventListener("click", () => {
 
     results.innerHTML = "";
 
-});
+});// ==============================
+// แสดงผลร้านค้า
+// ==============================
+
+function displayResults(list) {
+
+    resultCount.textContent = `พบทั้งหมด ${list.length} ร้าน`;
+
+    if (list.length === 0) {
+
+        results.innerHTML =
+        "<div class='no-result'>ไม่พบร้านค้าตามเงื่อนไขที่เลือก</div>";
+
+        return;
+    }
+
+    results.innerHTML = "";
+
+    list.forEach(item => {
+
+        const mapLink =
+        "https://www.google.com/maps/search/?api=1&query=" +
+        encodeURIComponent(
+            `${item["ชื่อร้าน"]} ${item["เขต/อำเภอ"]} ${item["จังหวัด"]}`
+        );
+
+        const facebook =
+        item["Social Media"] || "";
+
+        results.innerHTML += `
+
+        <div class="card">
+
+            <div class="store-name">
+                ${item["ชื่อร้าน"]}
+            </div>
+
+            <div class="info">
+                📞 ${item["เบอร์โทร"] || "-"}
+            </div>
+
+            <div class="info">
+                📍 ${item["เขต/อำเภอ"]},
+                ${item["จังหวัด"]}
+            </div>
+
+            <div class="action-buttons">
+
+                <a
+                    href="${mapLink}"
+                    target="_blank"
+                    class="map-btn">
+
+                    Google Maps
+
+                </a>
+
+                ${
+                    facebook
+                    ?
+                    `<a
+                        href="${facebook}"
+                        target="_blank"
+                        class="fb-btn">
+                        Facebook
+                    </a>`
+                    :
+                    ""
+                }
+
+            </div>
+
+        </div>
+
+        `;
+
+    });
+
+}
+
+
+
+// ==============================
+// เริ่มโหลดข้อมูล
+// ==============================
+
+loadDealerData();
