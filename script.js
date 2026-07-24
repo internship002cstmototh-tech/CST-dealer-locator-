@@ -4,7 +4,12 @@ let dealers = [];
 
 const provinceSelect = document.getElementById("province");
 const districtSelect = document.getElementById("district");
+const searchBtn = document.getElementById("searchBtn");
 const result = document.getElementById("result");
+const resultCount = document.getElementById("resultCount");
+const loading = document.getElementById("loading");
+
+loading.style.display = "block";
 
 Papa.parse(csvURL, {
     download: true,
@@ -13,9 +18,24 @@ Papa.parse(csvURL, {
 
     complete: function (results) {
 
+        loading.style.display = "none";
+
         dealers = results.data;
 
         loadProvince();
+
+    },
+
+    error: function () {
+
+        loading.style.display = "none";
+
+        result.innerHTML = `
+            <div class="result-card">
+                <h3>เกิดข้อผิดพลาด</h3>
+                <p>ไม่สามารถโหลดข้อมูลร้านค้าได้</p>
+            </div>
+        `;
 
     }
 
@@ -25,73 +45,100 @@ function loadProvince() {
 
     const provinces = [...new Set(
 
-        dealers.map(d => d["จังหวัด"]).filter(Boolean)
+        dealers
+            .map(item => item["จังหวัด"]?.trim())
+            .filter(Boolean)
 
     )].sort();
 
-    provinces.forEach(p => {
+    provinceSelect.innerHTML =
+        '<option value="">เลือกจังหวัด</option>';
 
-        const option = document.createElement("option");
+    provinces.forEach(province => {
 
-        option.value = p;
-
-        option.textContent = p;
-
-        provinceSelect.appendChild(option);
+        provinceSelect.innerHTML += `
+            <option value="${province}">
+                ${province}
+            </option>
+        `;
 
     });
 
 }
 
-provinceSelect.addEventListener("change", () => {
+provinceSelect.addEventListener("change", function () {
 
-    districtSelect.innerHTML = '<option value="">เลือกเขต / อำเภอ</option>';
+    const province = this.value;
 
-    const province = provinceSelect.value;
+    districtSelect.innerHTML =
+        '<option value="">เลือกเขต / อำเภอ</option>';
+
+    if (!province) return;
 
     const districts = [...new Set(
 
         dealers
-        .filter(d => d["จังหวัด"] === province)
-        .map(d => d["เขต"])
-        .filter(Boolean)
+            .filter(item => item["จังหวัด"] === province)
+            .map(item => item["เขต/อำเภอ"]?.trim())
+            .filter(Boolean)
 
     )].sort();
 
-    districts.forEach(d => {
+    districts.forEach(district => {
 
-        const option = document.createElement("option");
-
-        option.value = d;
-
-        option.textContent = d;
-
-        districtSelect.appendChild(option);
+        districtSelect.innerHTML += `
+            <option value="${district}">
+                ${district}
+            </option>
+        `;
 
     });
 
 });
 
-document.getElementById("searchBtn").addEventListener("click", () => {
-
-    result.innerHTML = "";
+searchBtn.addEventListener("click", function () {
 
     const province = provinceSelect.value;
-
     const district = districtSelect.value;
 
-    const filtered = dealers.filter(d =>
+    result.innerHTML = "";
+    resultCount.innerHTML = "";
 
-        d["จังหวัด"] === province &&
-        d["เขต"] === district
+    if (!province) {
 
-    );
+        alert("กรุณาเลือกจังหวัด");
+
+        return;
+
+    }
+
+    let filtered = dealers.filter(item => {
+
+        if (district === "") {
+
+            return item["จังหวัด"] === province;
+
+        }
+
+        return item["จังหวัด"] === province &&
+               item["เขต/อำเภอ"] === district;
+
+    });
+
+    resultCount.innerHTML =
+        `พบทั้งหมด ${filtered.length} ร้าน`;
 
     if (filtered.length === 0) {
 
         result.innerHTML = `
             <div class="result-card">
-                <p>ไม่พบตัวแทนจำหน่ายในพื้นที่นี้</p>
+
+                <h3>ไม่พบร้านค้า</h3>
+
+                <p>
+                    ไม่พบตัวแทนจำหน่ายในพื้นที่ที่เลือก
+                </p>
+
             </div>
         `;
 
@@ -99,29 +146,39 @@ document.getElementById("searchBtn").addEventListener("click", () => {
 
     }
 
-    filtered.forEach(d => {
+    filtered.forEach(shop => {
 
         result.innerHTML += `
 
         <div class="result-card">
 
-            <h3>${d["ชื่อร้าน"] || ""}</h3>
+            <h3>${shop["ชื่อร้าน"] || "-"}</h3>
 
-            <p>📞 ${d["เบอร์โทร"] || "-"}</p>
+            <p>📞 ${shop["เบอร์โทร"] || "-"}</p>
 
-            <p>
+            <p>📍 ${shop["จังหวัด"]} ${shop["เขต/อำเภอ"]}</p>
 
-                <a href="${d["Map"]}" target="_blank">
-                📍 Google Maps
+            <div class="button-group">
+
+                <a
+                    class="map-btn"
+                    href="${shop["Map"]}"
+                    target="_blank">
+
+                    Google Maps
+
                 </a>
 
-                &nbsp;&nbsp;
+                <a
+                    class="fb-btn"
+                    href="${shop["Social Media"]}"
+                    target="_blank">
 
-                <a href="${d["Social Media"]}" target="_blank">
-                🌐 Facebook
+                    Facebook
+
                 </a>
 
-            </p>
+            </div>
 
         </div>
 
