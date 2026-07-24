@@ -200,4 +200,46 @@ footer{
         font-size:18px;
     }
 
+.all-map{
+
+    margin-top:40px;
+
+    text-align:center;
+
+}
+
+.all-map p{
+
+    color:#666;
+
+    margin-bottom:15px;
+
+    font-size:18px;
+
+}
+
+.all-map-btn{
+
+    display:inline-block;
+
+    background:#f58220;
+
+    color:white;
+
+    text-decoration:none;
+
+    padding:14px 28px;
+
+    border-radius:10px;
+
+    font-weight:bold;
+
+    transition:.25s;
+
+}
+
+.all-map-btn:hover{
+
+    background:#df6d0d;
+
 }
