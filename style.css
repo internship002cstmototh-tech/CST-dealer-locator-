@@ -208,9 +208,10 @@ footer{
 
 }
 .all-map p{
-    font-size:13px;
-    color:#777;
-    line-height:1.5;
+    font-size:14px;
+    color:#222;
+    font-weight:600;
+    line-height:1.6;
     margin-bottom:16px;
 }
 .all-map-btn{
