@@ -8,6 +8,7 @@ const csvURL =
 let dealerData = [];
 
 const provinceSelect = document.getElementById("province");
+const subdistrictSelect = document.getElementById("subdistrict");
 const districtSelect = document.getElementById("district");
 const searchBtn = document.getElementById("searchBtn");
 const resetBtn = document.getElementById("resetBtn");
@@ -149,7 +150,45 @@ provinceSelect.addEventListener("change", () => {
     districtSelect.disabled = false;
 
 });
+districtSelect.addEventListener("change", () => {
 
+    const district = districtSelect.value;
+
+    subdistrictSelect.innerHTML =
+    '<option value="">-- เลือกแขวง / ตำบล --</option>';
+
+    if (!district) {
+        subdistrictSelect.disabled = true;
+        return;
+    }
+
+    const subdistricts = [...new Set(
+
+        dealerData
+            .filter(item =>
+                item["จังหวัด"] === provinceSelect.value &&
+                item["เขต/อำเภอ"] === district
+            )
+            .map(item => item["แขวง/ตำบล"])
+            .filter(Boolean)
+
+    )].sort();
+
+    subdistricts.forEach(sub => {
+
+        const option = document.createElement("option");
+
+        option.value = sub;
+
+        option.textContent = sub;
+
+        subdistrictSelect.appendChild(option);
+
+    });
+
+    subdistrictSelect.disabled = false;
+
+});
 
 
 // ==============================
@@ -177,6 +216,13 @@ searchBtn.addEventListener("click", () => {
     }
 
     displayResults(filtered);
+    if (subdistrictSelect.value) {
+
+    filtered = filtered.filter(item =>
+        item["แขวง/ตำบล"] === subdistrictSelect.value
+    );
+
+}
 
 });
 
@@ -194,6 +240,10 @@ resetBtn.addEventListener("click", () => {
         '<option value="">-- เลือกเขต / อำเภอ --</option>';
 
     districtSelect.disabled = true;
+    subdistrictSelect.innerHTML =
+'<option value="">-- เลือกแขวง / ตำบล --</option>';
+
+subdistrictSelect.disabled = true;
 
     resultCount.textContent = "";
 
@@ -241,8 +291,9 @@ function displayResults(list) {
             </div>
 
             <div class="info">
-                📍 ${item["เขต/อำเภอ"]},
-                ${item["จังหวัด"]}
+              📍 ${item["แขวง/ตำบล"]},
+                  ${item["เขต/อำเภอ"]},
+                  ${item["จังหวัด"]}
             </div>
 
             <div class="action-buttons">
